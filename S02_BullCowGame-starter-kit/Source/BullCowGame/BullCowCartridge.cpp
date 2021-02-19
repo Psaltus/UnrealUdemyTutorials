@@ -1,9 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "BullCowCartridge.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
 
 void UBullCowCartridge::BeginPlay() // When the game starts
 {
     Super::BeginPlay();
+    const FString WordListPath = FPaths::ProjectContentDir() / TEXT("WordLists/HiddenWordList.txt");
+    FFileHelper::LoadFileToStringArray(WordList, *WordListPath);
+    // TODO: Go through list once to confirm no HiddenWords have isograms
 
     SetupGame(); // Set up game
 }
@@ -20,7 +25,7 @@ void UBullCowCartridge::OnInput(const FString& Input) // When the player hits en
 
 void UBullCowCartridge::SetupGame()
 {
-    HiddenWord = TEXT("cakes"); // Set Hidden Word
+    HiddenWord = WordList[1]; // Set Hidden Word
     // const TCHAR HW[] = TEXT(FString::Printf("%s", *HiddenWord));
     // const TCHAR HW[] = FString::Printf(TEXT("%s", *HiddenWord));
 
@@ -62,7 +67,7 @@ void UBullCowCartridge::ProcessGuess(FString Guess)
         }
         else if (!IsIsogram(Guess)) // Check if isogram
         {
-            PrintLine(TEXT("'%s' is not an isogram! Try again"), *HiddenWord);
+            PrintLine(TEXT("'%s' is not an isogram! Try again"), *Guess);
         }
         else
         {
@@ -85,6 +90,22 @@ bool UBullCowCartridge::IsIsogram(FString Word) const
     // Loop through array to check for repeats
     // If no repeats, return true
     // If repeats found, return false before loop ends
+
+    for (int32 Index = 0; Index < Word.Len(); Index++)
+    {
+        for (int32 Comparison = Index + 1; Comparison < Word.Len(); Comparison++)
+        {
+            // PrintLine(TEXT("%c ? %c"), Word[Index], Word[Comparison]);
+            if (Word[Index] == Word[Comparison])
+            {
+                return false;
+            }
+            
+        }
+
+        // PrintLine(TEXT("%c"), Word[i]);
+    }
+    
 
     return true;
 }

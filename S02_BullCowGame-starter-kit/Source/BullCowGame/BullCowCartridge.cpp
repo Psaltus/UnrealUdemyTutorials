@@ -11,6 +11,11 @@ void UBullCowCartridge::BeginPlay() // When the game starts
     // TODO: Go through list once to confirm no HiddenWords have isograms
 
     SetupGame(); // Set up game
+    for (int32 i = 0; i <= 6; i++)
+    {
+        PrintLine(TEXT("%s"), *WordList[i]);
+    }
+    
 }
 
 void UBullCowCartridge::OnInput(const FString& Input) // When the player hits enter
@@ -25,7 +30,7 @@ void UBullCowCartridge::OnInput(const FString& Input) // When the player hits en
 
 void UBullCowCartridge::SetupGame()
 {
-    HiddenWord = WordList[1]; // Set Hidden Word
+    HiddenWord = WordList[2]; // Set Hidden Word
     // const TCHAR HW[] = TEXT(FString::Printf("%s", *HiddenWord));
     // const TCHAR HW[] = FString::Printf(TEXT("%s", *HiddenWord));
 

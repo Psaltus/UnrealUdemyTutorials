@@ -6,16 +6,9 @@
 void UBullCowCartridge::BeginPlay() // When the game starts
 {
     Super::BeginPlay();
-    const FString WordListPath = FPaths::ProjectContentDir() / TEXT("WordLists/HiddenWordList.txt");
-    FFileHelper::LoadFileToStringArray(WordList, *WordListPath);
-    // TODO: Go through list once to confirm no HiddenWords have isograms
-
-    SetupGame(); // Set up game
-    for (int32 i = 0; i <= 6; i++)
-    {
-        PrintLine(TEXT("%s"), *WordList[i]);
-    }
+    SetupGame();     
     
+
 }
 
 void UBullCowCartridge::OnInput(const FString& Input) // When the player hits enter
@@ -30,7 +23,15 @@ void UBullCowCartridge::OnInput(const FString& Input) // When the player hits en
 
 void UBullCowCartridge::SetupGame()
 {
-    HiddenWord = WordList[2]; // Set Hidden Word
+
+    TArray<FString> WordList;
+    const FString WordListPath = FPaths::ProjectContentDir() / TEXT("WordLists/HiddenWordList.txt");
+    FFileHelper::LoadFileToStringArray(WordList, *WordListPath);
+
+    WordList = GetValidWords(WordList);
+    PrintLine(TEXT("%s"), *WordList[0]);
+
+    HiddenWord = *WordList[FMath::RandRange(0, WordList.Num())]; // Set Hidden Word
     // const TCHAR HW[] = TEXT(FString::Printf("%s", *HiddenWord));
     // const TCHAR HW[] = FString::Printf(TEXT("%s", *HiddenWord));
 
@@ -41,8 +42,10 @@ void UBullCowCartridge::SetupGame()
 
     
     PrintLine(TEXT("Welcome!"));
+    // PrintLine(TEXT("Total number of words: %i"), GetValidWords(WordList).Num());
     PrintLine(TEXT("Type a guess of the word"));
     PrintLine(TEXT("Guess the %i letter word"), Lives);
+    PrintLine(TEXT("The hidden word is %s"), *HiddenWord);
 }
 
 void UBullCowCartridge::EndGame()
@@ -52,7 +55,7 @@ void UBullCowCartridge::EndGame()
     SetupGame();
 }
 
-void UBullCowCartridge::ProcessGuess(FString Guess)
+void UBullCowCartridge::ProcessGuess(const FString& Guess)
 {
     if (bGameOver)
     {
@@ -90,7 +93,7 @@ void UBullCowCartridge::ProcessGuess(FString Guess)
     }
 }
 
-bool UBullCowCartridge::IsIsogram(FString Word) const
+bool UBullCowCartridge::IsIsogram(const FString& Word) const
 {
     // Loop through array to check for repeats
     // If no repeats, return true
@@ -113,4 +116,19 @@ bool UBullCowCartridge::IsIsogram(FString Word) const
     
 
     return true;
+}
+
+TArray<FString> UBullCowCartridge::GetValidWords(const TArray<FString>& Words) const
+{
+    TArray<FString> ValidWordList;
+
+    for (FString WordToTest : Words)
+    {
+        if ((WordToTest.Len() >= 4 && WordToTest.Len() <= 8) && IsIsogram(WordToTest))
+        {
+            ValidWordList.Emplace(WordToTest);
+            // PrintLine(TEXT("Added word %s"), *WordList[i]);
+        }
+    }
+    return ValidWordList;
 }
